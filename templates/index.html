@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rule Engine</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Rule Engine</h1>
+
+        <div class="form-container">
+            <h2>Create Rule</h2>
+            <input type="text" id="rule-input" placeholder="Enter rule...">
+            <button onclick="createRule()">Create Rule</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function createRule() {
+            const rule = document.getElementById("rule-input").value;
+            
+            fetch('/api/create_rule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rule: rule })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('result').innerHTML = "Error: " + data.error;
+                } else {
+                    document.getElementById('result').innerHTML = "AST: " + JSON.stringify(data.ast, null, 2);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = "Error: " + error.message;
+            });
+        }
+    </script>
+    
+    
+</body>
+</html>
