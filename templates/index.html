@@ -1,118 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Rule Engine</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-8">Rule Engine</h1>
+<body>
+    <div class="container">
+        <h1>Rule Engine</h1>
         
-        <!-- Create Rule Form -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h2 class="text-xl font-semibold mb-4">Create New Rule</h2>
-            <form id="ruleForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Rule Name</label>
-                    <input type="text" id="ruleName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Rule String</label>
-                    <textarea id="ruleString" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows="3" required></textarea>
-                    <p class="text-sm text-gray-500 mt-1">Example: ((age > 30 AND department = 'Sales') OR (age < 25 AND department = 'Marketing')) AND (salary > 50000 OR experience > 5)</p>
-                </div>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Create Rule</button>
-            </form>
+        <div class="form-section">
+            <h2>Create Rule</h2>
+            <input type="text" id="ruleString" placeholder="Enter rule string (e.g., age > 30 AND department = 'Sales')" />
+            <button onclick="createRule()">Create Rule</button>
         </div>
-        
-        <!-- Evaluate Rules Form -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h2 class="text-xl font-semibold mb-4">Evaluate Rules</h2>
-            <form id="evaluateForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">User Data (JSON)</label>
-                    <textarea id="userData" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows="4" required></textarea>
-                    <p class="text-sm text-gray-500 mt-1">Example: {"age": 35, "department": "Sales", "salary": 60000, "experience": 3}</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Select Rules</label>
-                    <div id="rulesList" class="mt-2 space-y-2"></div>
-                </div>
-                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Evaluate</button>
-            </form>
-            <div id="evaluationResult" class="mt-4"></div>
+
+        <div class="form-section">
+            <h2>Combine Rules</h2>
+            <input type="text" id="ruleIds" placeholder="Enter rule IDs (comma-separated)" />
+            <button onclick="combineRules()">Combine Rules</button>
         </div>
+
+        <div class="form-section">
+            <h2>Evaluate Rule</h2>
+            <input type="text" id="megaRuleId" placeholder="Enter mega rule ID" />
+            <input type="text" id="data" placeholder="Enter data (JSON)" />
+            <button onclick="evaluateRule()">Evaluate Rule</button>
+        </div>
+
+        <div class="form-section">
+            <h2>Modify Rule</h2>
+            <input type="text" id="modifyRuleId" placeholder="Enter rule ID" />
+            <input type="text" id="newRuleString" placeholder="Enter new rule string" />
+            <button onclick="modifyRule()">Modify Rule</button>
+        </div>
+
+        <h2>Output</h2>
+        <pre id="output"></pre>
     </div>
 
     <script>
-        // Fetch and display existing rules
-        async function fetchRules() {
-            const response = await fetch('/api/rules');
-            const rules = await response.json();
-            const rulesList = document.getElementById('rulesList');
-            rulesList.innerHTML = rules.map(rule => `
-                <div class="flex items-center">
-                    <input type="checkbox" id="rule${rule.id}" value="${rule.id}" class="mr-2">
-                    <label for="rule${rule.id}">${rule.name}: ${rule.rule_string}</label>
-                </div>
-            `).join('');
+        const BASE_URL = "http://127.0.0.1:5000";
+
+        function createRule() {
+            const ruleString = document.getElementById("ruleString").value;
+            fetch(`${BASE_URL}/create_rule`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ rule_string: ruleString })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("output").innerText += `Create Rule Response: ${JSON.stringify(data)}\n`;
+            })
+            .catch(error => {
+                document.getElementById("output").innerText += `Error: ${error}\n`;
+            });
         }
 
-        // Create new rule
-        document.getElementById('ruleForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const response = await fetch('/api/rules', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    name: document.getElementById('ruleName').value,
-                    rule_string: document.getElementById('ruleString').value
-                })
+        function combineRules() {
+            const ruleIds = document.getElementById("ruleIds").value.split(',').map(id => parseInt(id.trim()));
+            fetch(`${BASE_URL}/combine_rules`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ rule_ids: ruleIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("output").innerText += `Combine Rules Response: ${JSON.stringify(data)}\n`;
+            })
+            .catch(error => {
+                document.getElementById("output").innerText += `Error: ${error}\n`;
             });
-            const result = await response.json();
-            if (response.ok) {
-                alert('Rule created successfully');
-                document.getElementById('ruleForm').reset();
-                fetchRules();
-            } else {
-                alert(`Error: ${result.error}`);
-            }
-        });
+        }
 
-        // Evaluate rules
-        document.getElementById('evaluateForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const selectedRules = Array.from(document.querySelectorAll('#rulesList input:checked'))
-                .map(input => parseInt(input.value));
-            
-            if (selectedRules.length === 0) {
-                alert('Please select at least one rule');
-                return;
-            }
-
+        function evaluateRule() {
+            const megaRuleId = parseInt(document.getElementById("megaRuleId").value);
+            const data = document.getElementById("data").value;
             try {
-                const userData = JSON.parse(document.getElementById('userData').value);
-                const response = await fetch('/api/evaluate', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        user_data: userData,
-                        rule_ids: selectedRules
-                    })
+                const dataJson = JSON.parse(data);
+                fetch(`${BASE_URL}/evaluate_rule`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ rule_id: megaRuleId, data: dataJson })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("output").innerText += `Evaluate Rule Response: ${JSON.stringify(data)}\n`;
+                })
+                .catch(error => {
+                    document.getElementById("output").innerText += `Error: ${error}\n`;
                 });
-                const result = await response.json();
-                document.getElementById('evaluationResult').innerHTML = `
-                    <div class="p-4 ${result.result ? 'bg-green-100' : 'bg-red-100'} rounded">
-                        Evaluation Result: ${result.result ? 'Passed' : 'Failed'}
-                    </div>
-                `;
             } catch (error) {
-                alert('Invalid JSON data');
+                document.getElementById("output").innerText += `JSON Decode Error: ${error}\n`;
             }
-        });
+        }
 
-        // Initial load
-        fetchRules();
+        function modifyRule() {
+            const ruleId = parseInt(document.getElementById("modifyRuleId").value);
+            const newRuleString = document.getElementById("newRuleString").value;
+            fetch(`${BASE_URL}/modify_rule`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ rule_id: ruleId, new_rule_string: newRuleString })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("output").innerText += `Modify Rule Response: ${JSON.stringify(data)}\n`;
+            })
+            .catch(error => {
+                document.getElementById("output").innerText += `Error: ${error}\n`;
+            });
+        }
     </script>
 </body>
 </html>
