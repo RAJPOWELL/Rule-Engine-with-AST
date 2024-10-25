@@ -47,6 +47,56 @@ This project is a rule engine application developed in Flask, with an interactiv
 - **HTML, CSS, JavaScript**: Frontend technologies to create an interactive interface.
 - **Logging**: Used to track application flow and debug issues.
 
+
+## Running the Flask Application with Docker
+
+### Prerequisites
+
+- Ensure Docker is installed and running on your system. You can download Docker from [here](https://www.docker.com/products/docker-desktop).
+
+### Steps to Run
+
+1. **Clone the Repository**
+
+   First, clone the repository or download the source files to your local machine.
+
+   ```bash
+   git clone https://github.com/RAJPOWELL/Rule-Engine-with-AST.git
+   cd Rule-Engine-with-AST
+   ```
+
+2. **Build the Docker Image**
+
+   Build the Docker image using the provided `Dockerfile`:
+
+   ```bash
+   docker build -t flask-rule-engine .
+   ```
+
+3. **Run the Docker Container**
+
+   Start the container using the following command. This maps port `5000` on your local machine to port `5000` in the container:
+
+   ```bash
+   docker run -p 5000:5000 flask-rule-engine
+   ```
+
+4. **Access the Application**
+
+   Once the container is running, you can access the Flask application by navigating to `http://localhost:5000` in your web browser.
+
+5. **Stopping the Container**
+
+   To stop the container, press `CTRL+C` in the terminal running the Docker container or list and stop the container using the following commands:
+
+   ```bash
+   docker ps          # Get the container ID
+   docker stop <container-id>
+   ```
+
+---
+
+
 ## Installation
 
 To set up this application locally, follow these steps:
