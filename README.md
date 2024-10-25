@@ -29,6 +29,7 @@ This project is a rule engine application developed in Flask, with an interactiv
 | Frontend UI for Rule Operations| ✅           |
 | AST Visualization              | ✅           |
 | API Endpoints for Each Feature | ✅           |
+| Dockerized                     | ✅           |
 
 
 ## Features
