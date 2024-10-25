@@ -7,43 +7,90 @@
     <title>Rule Engine</title>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <style>
-        /* Optional CSS for better visualization */
+        /* General Styles */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #e0e0e0;
         }
 
         .container {
             max-width: 800px;
             margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            background: rgba(255, 255, 255, 0.1); /* Glass effect */
+            backdrop-filter: blur(10px); /* Background blur for glassmorphism */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Semi-transparent border */
         }
 
-        .form-section {
-            margin-bottom: 20px;
+        h1{
+            color: #ee8a08;
+            margin: 10px 0;
+            text-align: center;
+            
         }
-
-        h1, h2 {
-            color: #333;
+        h2 {
+            color: #e0e0e0;
+            margin: 10px 0;
         }
 
         pre {
-            background: #f4f4f4;
+            background: rgba(255, 255, 255, 0.1);
             padding: 10px;
             border-radius: 5px;
-            white-space: pre-wrap;  /* Ensures text wraps */
-            word-wrap: break-word;  /* Breaks long words */
-            max-height: 200px;  /* Limits the height of the output box */
-            overflow-y: auto;   /* Adds a scrollbar if content exceeds the height */
-            margin: 10px 0;     /* Adds some margin around the output box */
+            white-space: pre-wrap;  
+            word-wrap: break-word;  
+            max-height: 200px;  
+            overflow-y: auto;   
+            margin: 10px 0;     
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background-color 0.3s ease;
         }
 
-        /* CSS for rules list */
         .rules-list {
             margin-top: 20px;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 5px;
-            background: #f9f9f9;
+            background: rgba(255, 255, 255, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        /* Button Styles */
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        /* Animation for the AST Visualization */
+        .node circle {
+            fill: #69b3a2;
+            transition: fill 0.3s;
+        }
+
+        .node circle:hover {
+            fill: #45a29e;
+        }
+
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
         }
     </style>
 </head>
@@ -207,10 +254,12 @@
             node.append("circle")
                 .attr("r", 5);
 
+            // Change text color to white
             node.append("text")
                 .attr("dy", 3)
                 .attr("x", d => d.children ? -8 : 8)
                 .style("text-anchor", d => d.children ? "end" : "start")
+                .style("fill", "#ffffff")  // Change text color to white
                 .text(d => d.data.name);
         }
 
