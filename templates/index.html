@@ -5,6 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Rule Engine</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        /* Optional CSS for better visualization */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;  /* Ensures text wraps */
+            word-wrap: break-word;  /* Breaks long words */
+            max-height: 200px;  /* Limits the height of the output box */
+            overflow-y: auto;   /* Adds a scrollbar if content exceeds the height */
+            margin: 10px 0;     /* Adds some margin around the output box */
+        }
+
+        /* CSS for rules list */
+        .rules-list {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -38,10 +79,17 @@
 
         <h2>Output</h2>
         <pre id="output"></pre>
+        
+        <h2>AST Visualization</h2>
+        <div id="astContainer"></div>  <!-- Container for AST Visualization -->
+
+        <h2>All Created Rules</h2>
+        <div class="rules-list" id="rulesList"></div> <!-- Container for all created rules -->
     </div>
 
     <script>
         const BASE_URL = "http://127.0.0.1:5000";
+        let ruleCount = 0;  // Track the number of rules created
 
         function createRule() {
             const ruleString = document.getElementById("ruleString").value;
@@ -55,6 +103,13 @@
             .then(response => response.json())
             .then(data => {
                 document.getElementById("output").innerText += `Create Rule Response: ${JSON.stringify(data)}\n`;
+                renderAST(data.ast);  // Call to render the AST
+
+                // Update the rules list
+                ruleCount++;
+                const ruleElement = document.createElement("div");
+                ruleElement.textContent = `Rule ${ruleCount}: ${ruleString} (ID: ${data.id})`;
+                document.getElementById("rulesList").appendChild(ruleElement);
             })
             .catch(error => {
                 document.getElementById("output").innerText += `Error: ${error}\n`;
@@ -120,6 +175,52 @@
             .catch(error => {
                 document.getElementById("output").innerText += `Error: ${error}\n`;
             });
+        }
+
+        function renderAST(ast) {
+            // Clear previous AST
+            d3.select("#astContainer").selectAll("*").remove();
+
+            const parsedAST = JSON.parse(ast);
+            const treeData = toTreeStructure(parsedAST);
+            const svg = d3.select("#astContainer").append("svg").attr("width", 600).attr("height", 400);
+            const g = svg.append("g").attr("transform", "translate(40,0)");
+
+            const tree = d3.tree().size([300, 200]);
+            const root = d3.hierarchy(treeData);
+            tree(root);
+
+            // Links
+            g.selectAll(".link")
+                .data(root.links())
+                .enter().append("path")
+                .attr("class", "link")
+                .attr("d", d3.linkHorizontal().x(d => d.y).y(d => d.x));
+
+            // Nodes
+            const node = g.selectAll(".node")
+                .data(root.descendants())
+                .enter().append("g")
+                .attr("class", d => "node" + (d.children ? " node--internal" : " node--leaf"))
+                .attr("transform", d => "translate(" + d.y + "," + d.x + ")");
+
+            node.append("circle")
+                .attr("r", 5);
+
+            node.append("text")
+                .attr("dy", 3)
+                .attr("x", d => d.children ? -8 : 8)
+                .style("text-anchor", d => d.children ? "end" : "start")
+                .text(d => d.data.name);
+        }
+
+        function toTreeStructure(node) {
+            // Helper function to convert AST to tree structure for D3
+            if (node.type === 'operand') {
+                return { name: node.value };
+            }
+            const children = [node.left, node.right].filter(Boolean).map(toTreeStructure);
+            return { name: node.value, children: children };
         }
     </script>
 </body>

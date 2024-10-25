@@ -115,7 +115,8 @@ def create_rule():
     rule = Rule(rule_string=rule_string, ast=json.dumps(ast.to_dict()))
     session.add(rule)
     session.commit()
-    return jsonify({'id': rule.id, 'ast': rule.ast})
+    return jsonify({'id': rule.id, 'ast': rule.ast})  # Ensure AST is returned in JSON
+
 
 @app.route('/combine_rules', methods=['POST'])
 def combine_rules():
