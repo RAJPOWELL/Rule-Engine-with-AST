@@ -12,7 +12,6 @@ This project is a rule engine application developed in Flask, with an interactiv
 - [Frontend Interface](#frontend-interface)
 - [Usage Instructions](#usage-instructions)
 - [Screenshots](#screenshots)
-- [Future Enhancements](#future-enhancements)
 
 ---
 
