@@ -89,6 +89,12 @@ def evaluate_ast(ast, data):
         left, op, right = ast.value.split()
         left_value = data.get(left)
         right_value = int(right) if right.isdigit() else right.strip("'")
+
+        # Add a check for left_value
+        if left_value is None:
+            logging.warning(f"Left value for '{left}' is None.")
+            return False  # or handle as needed
+
         if op == '>':
             return left_value > right_value
         elif op == '<':
@@ -96,6 +102,7 @@ def evaluate_ast(ast, data):
         elif op == '=':
             return left_value == right_value
     return False
+
 
 @app.route('/')
 def index():
