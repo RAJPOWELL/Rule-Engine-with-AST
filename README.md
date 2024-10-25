@@ -54,7 +54,7 @@ To set up this application locally, follow these steps:
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/RAJPOWELL/Rule-Engine-with-AST.git
-   cd rule-engine
+   cd Rule-Engine-with-AST
    ```
 
 2. **Install dependencies**:
@@ -63,19 +63,13 @@ To set up this application locally, follow these steps:
    pip install -r requirements.txt
    ```
 
-3. **Initialize the database**:
-   Run the application once to initialize the `rules.db` SQLite database:
+3. **Run the application**:
+   Start the Flask application:
    ```bash
    python app.py
    ```
 
-4. **Run the application**:
-   Start the Flask application:
-   ```bash
-   flask run
-   ```
-
-5. **Open in browser**:
+4. **Open in browser**:
    Go to `http://127.0.0.1:5000` in your browser to access the rule engine interface.
 
 ## Database Schema
